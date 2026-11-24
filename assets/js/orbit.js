@@ -7,22 +7,38 @@
   if (!stage) return;
 
   const PLANETS = [
-    { id: "education",  title: "Education",       invite: "How can I support your learning journey?", href: "education.html",  color: "#e39a2d" },
-    { id: "wellbeing",  title: "Wellbeing",       invite: "Take a little time for yourself.",          href: "wellbeing.html",  color: "#d98a7b" },
-    { id: "dance",      title: "Dance",           invite: "Come into the circle.",                     href: "dance.html",      color: "#c4452d" },
-    { id: "community",  title: "Community",       invite: "How can I support your organisation?",      href: "community.html",  color: "#7f9a6b" },
-    { id: "inner-life", title: "Sufi Inner Life", invite: "Reflections from my Sufi path.",            href: "inner-life.html", color: "#4a5fb0" },
+    { id: "education",  title: "Education",       invite: "How can I support your learning journey?", href: "education.html",  color: "#e39a2d",
+      blurb: "Twenty years in Montessori, Reggio Emilia and nature education. I walk alongside schools, educators and families.",
+      tags: ["Schools & teams", "Home education", "Online classes"] },
+    { id: "wellbeing",  title: "Wellbeing",       invite: "Take a little time for yourself.",          href: "wellbeing.html",  color: "#d98a7b",
+      blurb: "A space to slow down, breathe and come home to the body.",
+      tags: ["Yoga", "Meditation", "Sound baths", "Women's retreats"] },
+    { id: "dance",      title: "Dance",           invite: "Come into the circle.",                     href: "dance.html",      color: "#c4452d",
+      blurb: "Simple circle dances of Universal Peace, sung together. No experience needed.",
+      tags: ["Dance evenings", "Retreats", "Dances I've written"] },
+    { id: "community",  title: "Community",       invite: "How can I support your organisation?",      href: "community.html",  color: "#7f9a6b",
+      blurb: "Events and admin support for organisations, with care for every newcomer.",
+      tags: ["Gatherings & retreats", "Newsletters", "Enquiries"] },
+    { id: "inner-life", title: "Sufi Inner Life", invite: "Reflections from my Sufi path.",            href: "inner-life.html", color: "#4a5fb0",
+      blurb: "Writing, paintings and the questions I am living with.",
+      tags: ["Reflections", "Paintings", "The Soul of the Child"] },
   ];
 
   // The dancer: a looping video of young Hadi dancing (transparent background).
   // Safari plays the HEVC .mov (with alpha); Chrome, Edge and Firefox play the WebM.
-  const VIDEO = { mov: "assets/video/hadi-dance.mov?v=3", webm: "assets/video/hadi-dance.webm", poster: "assets/video/hadi-dance-poster.webp" };
+  const VIDEO = { mov: "assets/video/hadi-dance.mov?v=7", webm: "assets/video/hadi-dance.webm?v=7", poster: "assets/video/hadi-dance-poster.webp" };
   const FIG = { x: 214, y: 269, w: 628, h: 476 };            // where the video sits (viewBox units)
   const HEART = { x: 505, y: 416 };                          // her glowing heart
   const HANDS = [{ x: 360, y: 400 }, { x: 655, y: 400 }];    // her open palms
   const FEET = { x: 500, y: 715 };
   const VIDEO_SPEED = 0.85;   // play her whirl a little slower than generated
-  const HEART_EVERY = 13;      // seconds between light pouring from her heart
+  const HEART_EVERY = 13;
+  // outer rings: radius (viewBox units), seconds per turn (negative = other way), lights on them
+  const OUTER = [
+    { r: 440, sec: 260, dashed: true, motes: [{ a: 30, size: 2.6, o: .9 }, { a: 205, size: 1.8, o: .6 }] },
+    { r: 520, sec: -380, motes: [{ a: 120, size: 3.2, o: .85 }, { a: 300, size: 2, o: .55 }, { a: 330, size: 1.4, o: .4 }] },
+    { r: 610, sec: 520, dashed: true, motes: [{ a: 250, size: 2.4, o: .7 }] },
+  ];      // seconds between light pouring from her heart
 
   const ORBIT_SECONDS = 150;   // one revolution of the planets
   const WORD_SECONDS = 60;     // one turn of the words around a planet
@@ -41,7 +57,7 @@
     return n;
   };
 
-  let cfg, svg, front, video, auraEl;
+  let cfg, svg, front, video, auraEl, moteEls = [];
   let planetEls = [], threadEls = [], spokeEls = [];
   let pos = [];                // current planet centres
   let figOffset = { x: 0, y: 0, rot: 0 };
@@ -50,8 +66,8 @@
     const w = stage.getBoundingClientRect().width;
     const compact = w < 540;
     return compact
-      ? { compact, orbitR: 335, planetR: 78, textR: 102, titleSize: 29, inviteSize: 0 }
-      : { compact, orbitR: 345, planetR: 60, textR: 81, titleSize: 18.5, inviteSize: 15 };
+      ? { compact, orbitR: 342, planetR: 94, textR: 120, titleSize: 32, inviteSize: 0 }
+      : { compact, orbitR: 350, planetR: 72, textR: 95, titleSize: 20, inviteSize: 15.5 };
   }
 
   function build() {
@@ -68,7 +84,19 @@
     el("stop", { offset: "0%", "stop-color": "#f3dfab", "stop-opacity": ".42" }, sun);
     el("stop", { offset: "45%", "stop-color": "#d6ad5b", "stop-opacity": ".14" }, sun);
     el("stop", { offset: "100%", "stop-color": "#d6ad5b", "stop-opacity": "0" }, sun);
+    const gs = el("filter", { id: "glow-soft", x: "-200%", y: "-200%", width: "500%", height: "500%" }, defs);
+    el("feGaussianBlur", { stdDeviation: "3" }, gs);
+    const fm = el("feMerge", {}, gs); el("feMergeNode", {}, fm); el("feMergeNode", { in: "SourceGraphic" }, fm);
+
     el("circle", { class: "orbit-ring", cx: 500, cy: 500, r: cfg.orbitR }, svg);
+
+    // wider rings of the cosmic stage, each with a few travelling lights
+    moteEls = [];
+    OUTER.forEach((o) => {
+      el("circle", { class: "outer-ring" + (o.dashed ? " dashed" : ""), cx: 500, cy: 500, r: o.r }, svg);
+      o.motes.forEach((m) => moteEls.push({ el: el("circle", { class: "mote", r: m.size, opacity: m.o,
+        cx: 500 + o.r * Math.cos((m.a * Math.PI) / 180), cy: 500 + o.r * Math.sin((m.a * Math.PI) / 180) }, svg), r: o.r, a: m.a, sec: o.sec }));
+    });
 
     auraEl = el("circle", { class: "aura", cx: 500, cy: 480, r: 300, fill: "url(#sun)" }, svg);
 
@@ -123,13 +151,13 @@
         tp2.textContent = p.invite;
       }
 
-      const enter = () => { if (active !== i) { focus(i); ripple(i, 1); } };
+      const enter = () => { if (active !== i) { focus(i); burst(i, 0.7); } };
       a.addEventListener("mouseenter", enter);
       a.addEventListener("focus", enter);
-      a.addEventListener("mouseleave", blur);
-      a.addEventListener("blur", blur);
+      a.addEventListener("mouseleave", () => blurSoon());
+      a.addEventListener("blur", () => blurSoon());
       a.addEventListener("touchstart", (e) => {
-        // first tap reveals the invitation, second tap enters
+        // first tap opens the planet's card, second tap enters
         if (active !== i) { e.preventDefault(); focus(i); burst(i, 1.1); }
       }, { passive: false });
       a.addEventListener("click", (e) => {
@@ -142,6 +170,14 @@
       planetEls.push({ a, g, ring, phase: START + (i * 360) / PLANETS.length, spin: i * 47, last: -99 });
     });
 
+    // the information card that opens beside a planet
+    card = document.createElement("div");
+    card.className = "planet-card";
+    card.setAttribute("aria-hidden", "true");
+    card.addEventListener("mouseenter", () => clearTimeout(hideT));
+    card.addEventListener("mouseleave", () => blurSoon());
+    stage.appendChild(card);
+
     // effects layer (sparks, stars, ripples) sits above everything
     fx.canvas = document.createElement("canvas");
     fx.canvas.className = "orbit-fx";
@@ -153,21 +189,59 @@
   }
 
   // ---------------------------------------------------------------- focus
-  let active = -1;
+  let active = -1, card, hideT;
   function focus(i) {
+    clearTimeout(hideT);
     active = i;
     stage.classList.add("focus");
     planetEls.forEach((p, k) => p.a.classList.toggle("active", k === i));
     threadEls.forEach((l) => l.classList.toggle("lit", +l.dataset.a === i || +l.dataset.b === i));
     spokeEls.forEach((l) => l.classList.toggle("lit", +l.dataset.a === i));
     if (caption) caption.textContent = PLANETS[i].invite;
+    const p = PLANETS[i];
+    card.style.setProperty("--pc", p.color);
+    card.innerHTML = `<b class="pc-title">${p.title}</b><em class="pc-invite">${p.invite}</em>` +
+      `<p class="pc-blurb">${p.blurb}</p><div class="pc-tags">${p.tags.map((t) => `<span>${t}</span>`).join("")}</div>` +
+      `<a class="pc-go" href="${p.href}">Enter ${p.title} <span aria-hidden="true">→</span></a>`;
+    card.classList.remove("show"); void card.offsetWidth;
+    card.classList.add("show");
+    card.setAttribute("aria-hidden", "false");
+    placeCard();
   }
   function blur() {
     active = -1;
     stage.classList.remove("focus");
     planetEls.forEach((p) => p.a.classList.remove("active"));
     if (caption) caption.textContent = defaultCaption;
+    if (card) { card.classList.remove("show"); card.setAttribute("aria-hidden", "true"); }
   }
+  function blurSoon() {
+    clearTimeout(hideT);
+    hideT = setTimeout(() => {
+      if (card.matches(":hover") || card.contains(document.activeElement)) return;
+      blur();
+    }, 280);
+  }
+  // keep the card beside its planet, opening outward from the centre
+  function placeCard() {
+    if (active < 0 || !card) return;
+    if (cfg.compact) { card.classList.add("below"); card.style.left = card.style.top = ""; return; }
+    card.classList.remove("below");
+    const [x, y] = pos[active];
+    const right = x >= 500;
+    const sr = stage.getBoundingClientRect(), k = sr.width / 1000, cw = card.offsetWidth;
+    const anchor = (right ? x + cfg.textR + 26 : x - cfg.textR - 26) * k;
+    let left = right ? anchor : anchor - cw;
+    // keep the whole card on screen
+    left = Math.max(12 - sr.left, Math.min(window.innerWidth - 12 - sr.left - cw, left));
+    card.style.setProperty("--dx", right ? "10px" : "-10px");
+    card.style.left = left.toFixed(1) + "px";
+    card.style.top = Math.min(880, Math.max(120, y)) / 10 + "%";
+  }
+  // tapping anywhere else closes an open card on touch screens
+  document.addEventListener("touchstart", (e) => {
+    if (active >= 0 && !e.target.closest(".planet, .planet-card")) blur();
+  }, { passive: true });
 
   // ---------------------------------------------------------------- effects
   const fx = { canvas: null, ctx: null, scale: 1, dpr: 1, items: [] };
@@ -299,6 +373,22 @@
     ctx.globalCompositeOperation = "source-over";
   }
 
+  // a gentle fountain of sparkles around the planet being looked at
+  let hoverClock = 0;
+  function hoverSparkles(dt) {
+    hoverClock += dt;
+    while (hoverClock > 0.07) {
+      hoverClock -= 0.07;
+      const [px, py] = pos[active], th = rand(0, Math.PI * 2), r = cfg.planetR * rand(0.9, 1.15);
+      const sp = rand(18, 55);
+      fx.items.push({
+        type: "star", x: px + Math.cos(th) * r, y: py + Math.sin(th) * r,
+        vx: Math.cos(th) * sp, vy: Math.sin(th) * sp - 10, life: 0, max: rand(0.8, 1.5), size: rand(2.5, 6),
+        color: Math.random() < 0.55 ? GOLD[(Math.random() * 3) | 0] : PLANETS[active].color, rot: rand(0, Math.PI), spin: rand(-2, 2),
+      });
+    }
+  }
+
   // gold dust drifting off her as she dances
   let dustClock = 0;
   function emitDust(dt) {
@@ -389,8 +479,15 @@
       t += dt * speed;
       clock += dt;
       dance(clock);
+      moteEls.forEach((m) => {
+        const ang = ((m.a + (clock / m.sec) * 360) * Math.PI) / 180;
+        m.el.setAttribute("cx", (500 + m.r * Math.cos(ang)).toFixed(1));
+        m.el.setAttribute("cy", (500 + m.r * Math.sin(ang)).toFixed(1));
+      });
       place(t);
       emitDust(dt);
+      if (active >= 0) hoverSparkles(dt);
+      placeCard();
       touches();
       drawFx(dt);
     }
