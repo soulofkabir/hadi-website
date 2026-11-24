@@ -16,7 +16,7 @@
 
   // The dancer: a looping video of young Hadi dancing (transparent background).
   // Safari plays the HEVC .mov (with alpha); Chrome, Edge and Firefox play the WebM.
-  const VIDEO = { mov: "assets/video/hadi-dance.mov", webm: "assets/video/hadi-dance.webm", poster: "assets/video/hadi-dance-poster.webp" };
+  const VIDEO = { mov: "assets/video/hadi-dance.mov?v=3", webm: "assets/video/hadi-dance.webm", poster: "assets/video/hadi-dance-poster.webp" };
   const FIG = { x: 214, y: 269, w: 628, h: 476 };            // where the video sits (viewBox units)
   const HEART = { x: 505, y: 416 };                          // her glowing heart
   const HANDS = [{ x: 360, y: 400 }, { x: 655, y: 400 }];    // her open palms
