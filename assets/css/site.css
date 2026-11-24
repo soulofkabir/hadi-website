@@ -119,7 +119,9 @@ p { margin: 0 0 1.1em; }
 }
 #stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .orbit-stage { position: relative; width: min(92vmin, 860px); aspect-ratio: 1; z-index: 2; }
-.orbit-stage svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.orbit-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; display: block; }
+.orbit-back { z-index: 0; }
+.orbit-front { z-index: 2; }
 
 .orbit-ring { fill: none; stroke: rgba(234, 212, 160, .16); stroke-width: 1; stroke-dasharray: 2 7; }
 .thread {
@@ -134,18 +136,28 @@ p { margin: 0 0 1.1em; }
 .orbit-stage.focus .thread.lit { opacity: .95; stroke-width: 1.8; }
 
 .planet { cursor: pointer; outline: none; }
-.planet .halo { fill: var(--pc); opacity: .22; filter: url(#glow); transition: opacity .5s; }
-.planet .body { stroke: var(--gold-soft); stroke-width: 1.5; transition: stroke-width .4s; }
-.planet .tint { fill: var(--pc); opacity: .18; mix-blend-mode: multiply; }
+.planet .halo { fill: var(--pc); opacity: .2; filter: url(#glow); transition: opacity .5s; }
+.planet .orb { transition: filter .6s; }
+.planet .body { stroke: var(--gold); stroke-width: 0; opacity: .9; transition: stroke-width .4s; }
 .planet .title-text { font-family: var(--display); font-size: 25px; letter-spacing: .24em; fill: var(--cream); text-transform: uppercase; font-weight: 600; }
 .planet .invite-text { font-family: var(--display); font-style: italic; font-size: 17px; fill: var(--gold-soft); letter-spacing: .02em; }
 .planet .label-ring { transform-box: view-box; }
 .planet:hover .halo, .planet:focus-visible .halo, .planet.active .halo { opacity: .55; }
-.planet:hover .body, .planet:focus-visible .body, .planet.active .body { stroke-width: 3; stroke: var(--gold); }
+.planet:hover .body, .planet:focus-visible .body, .planet.active .body { stroke-width: 2.5; }
 .planet:focus-visible .body { stroke: #fff; }
+.planet.touched .halo { animation: touched 1.6s ease-out; }
+.planet.touched .orb { animation: brighten 1.6s ease-out; }
+@keyframes touched { 0% { opacity: .2; } 18% { opacity: .95; } 100% { opacity: .2; } }
+@keyframes brighten { 0% { filter: none; } 18% { filter: brightness(1.35) saturate(1.15); } 100% { filter: none; } }
+.thread.glint { animation: flow 9s linear infinite, glint 1.8s ease-out; }
+@keyframes glint { 0% { opacity: .42; } 20% { opacity: 1; stroke-width: 2; } 100% { opacity: .42; } }
+.thread.spoke.glint { animation: flow 9s linear infinite, glint-spoke 1.8s ease-out; }
+@keyframes glint-spoke { 0% { opacity: .16; } 20% { opacity: .8; } 100% { opacity: .16; } }
 
-.portrait-ring { fill: none; stroke: var(--gold); stroke-width: 1.2; opacity: .7; }
-.portrait-ring.outer { stroke-dasharray: 1 5; opacity: .5; }
+/* the dancer at the centre */
+.dancer-video { position: absolute; z-index: 1; height: auto; aspect-ratio: 660 / 500; pointer-events: none; will-change: transform; }
+.aura { pointer-events: none; }
+.orbit-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
 
 .center-caption {
   position: relative; z-index: 3; margin: 4px auto 0;
@@ -189,7 +201,7 @@ p { margin: 0 0 1.1em; }
   display: flex; flex-direction: column; gap: 6px;
 }
 .path-card:hover, .path-card:focus-visible { transform: translateY(-6px); }
-.path-card .orb { width: 78px; height: 78px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid var(--c); box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent); margin-bottom: 12px; }
+.path-card .orb { width: 92px; height: 92px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 8px; }
 .path-card h3 { font-size: 27px; margin: 0; }
 .path-card p { font-family: var(--display); font-style: italic; font-size: 19px; line-height: 1.35; color: var(--ink-soft); margin: 0; }
 .path-card .go { margin-top: auto; padding-top: 14px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--c); font-weight: 700; }
@@ -324,7 +336,7 @@ p { margin: 0 0 1.1em; }
   display: flex; gap: 16px; align-items: center; transition: background .4s, border-color .4s;
 }
 .thread-link:hover, .thread-link:focus-visible { background: rgba(255,255,255,.06); border-color: var(--c); }
-.thread-link .orb { width: 54px; height: 54px; border-radius: 50%; background-size: cover; background-position: center; flex: none; border: 2px solid var(--c); }
+.thread-link .orb { width: 64px; height: 64px; background-size: contain; background-repeat: no-repeat; background-position: center; flex: none; }
 .thread-link b { font-family: var(--display); font-weight: 500; font-size: 23px; display: block; line-height: 1.1; }
 .thread-link span { font-size: 14px; opacity: .72; }
 

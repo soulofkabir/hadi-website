@@ -8,7 +8,7 @@ A demo of Hadi's personal website, built from her brief ("Website Plan.md"), her
 
 | Page | File |
 | --- | --- |
-| Landing: Hadi at the centre, five planets orbiting, joined by gold threads | `index.html` |
+| Landing: a painting of young Hadi dancing at the centre, five painted planets orbiting, joined by gold threads | `index.html` |
 | Education: Montessori consultancy (her favourite photo, IMG_4867, under the title) | `education.html` |
 | Wellbeing: yoga, meditation, sound baths, retreats | `wellbeing.html` |
 | Dance: Dances of Universal Peace, and the dances she has birthed | `dance.html` |
@@ -21,7 +21,8 @@ A demo of Hadi's personal website, built from her brief ("Website Plan.md"), her
 Plain HTML, CSS and JavaScript, with no build step, so it can be hosted anywhere (GitHub Pages now; Cloudflare Pages or Netlify later).
 
 - `assets/css/site.css` holds the design tokens (colours, fonts) at the top.
-- `assets/js/orbit.js` runs the landing-page orbit. The planet titles, invitations and links are in the `PLANETS` list at the top.
+- `assets/js/orbit.js` runs the landing-page hero. The planet titles, invitations and links are in the `PLANETS` list at the top. The dancer is a looping video with a transparent background (`assets/video/`): Safari and iPhone play the HEVC `.mov`, other browsers play the `.webm`. The earlier version, which faded between four still paintings (`hadi-1…4.webp`), is saved in `../hero-backup/orbit-poses.js`. When a planet passes her open hand, or a visitor touches it, it bursts into stars and ripples.
+- The dancer and planet paintings were made with Gemini (Nano Banana) from a childhood photo of Hadi. The originals are in `../Gemini Images/`, and the prompts are in `../Nano Banana Prompts.md`.
 - `assets/js/site.js` runs the starfield, scroll reveals and photo lightbox.
 - Images were resized and had their metadata stripped (including iPhone GPS location). Photos showing children's faces were left out on purpose.
 - Motion stops for visitors whose device asks for reduced motion.
@@ -37,7 +38,7 @@ Then open http://localhost:8642.
 ## Still needed from Hadi
 
 - Which name to lead with (Hadi / Helen L'Heureux), and whether the site should also be in French
-- A portrait photo for the centre of the orbit (natural light, outdoors)
+- Her approval of the painting of young Hadi at the centre of the landing page
 - Contact email, and the link to her Dances of Universal Peace profile
 - Stories and recordings of the dances she has written
 - Testimonials from retreat participants
